@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+<h1>Class Scheduler</h1>
+    <form id="classForm">
+        <label for="lectureRoomNames">Enter Lecture Room Names (separated by comma):</label>
+        <input type="text" id="lectureRoomNames" required><br>
+        <label for="labRoomNames">Enter Laboratory Room Names (separated by comma):</label>
+        <input type="text" id="labRoomNames" required><br>
+        <label for="computerLabNames">Enter Computer Laboratory Names (separated by comma):</label>
+        <input type="text" id="computerLabNames" required><br>
+        <div id="teacherInputs">
+            <div class="teacherInput">
+                <label for="teacherName">Teacher's Name:</label>
+                <input type="text" class="teacherName" required><br>
+                <div class="subjectInputs">
+                    <div class="subjectInput">
+                        <label for="subject">Subject:</label>
+                        <input type="text" class="subject" required>
+                        <label for="section">Section:</label>
+                        <input type="text" class="section" required>
+                        <label for="lectureUnits">Lecture Units:</label>
+                        <input type="number" class="lectureUnits" min="0" required>
+                        <label for="labUnits">Lab Units:</label>
+                        <input type="number" class="labUnits" min="0" required>
+                        <label for="computerLabRequired">Require Computer Lab?</label>
+                        <select class="computerLabRequired">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select><br>
+                        <button type="button" class="deleteSubjectBtn">Delete Subject</button><br>
+                    </div>
+                </div>
+                <button type="button" class="addSubjectBtn">Add Subject</button><br>
+                <button type="button" class="deleteTeacherBtn">Delete Teacher</button><br>
+            </div>
+        </div>
+        <button type="button" id="addTeacherBtn">Add Teacher</button><br>
+        <button type="submit">Schedule Classes</button>
+    </form>
+
+    <h2>Class Schedule</h2>
+    <div id="schedule"></div>
+    <div id="pendingClasses"></div>
+  
+</body>
+</html>
