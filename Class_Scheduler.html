@@ -49,5 +49,210 @@
     <div id="schedule"></div>
     <div id="pendingClasses"></div>
   
+<script>
+    let classes = []; // Array to store class objects
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']; // Updated list of days
+        let lectureRooms = []; // Lecture rooms
+        let labRooms = []; // Laboratory rooms
+        let computerLabRooms = []; // Computer laboratory rooms
+
+        document.getElementById('addTeacherBtn').addEventListener('click', function() {
+            const teacherInputsDiv = document.getElementById('teacherInputs');
+
+            const teacherInput = document.createElement('div');
+            teacherInput.classList.add('teacherInput');
+            teacherInput.innerHTML = `
+                <label for="teacherName">Teacher's Name:</label>
+                <input type="text" class="teacherName" required><br>
+                <div class="subjectInputs">
+                    <div class="subjectInput">
+                        <label for="subject">Subject:</label>
+                        <input type="text" class="subject" required>
+                        <label for="section">Section:</label>
+                        <input type="text" class="section" required>
+                        <label for="lectureUnits">Lecture Units:</label>
+                        <input type="number" class="lectureUnits" min="0" required>
+                        <label for="labUnits">Lab Units:</label>
+                        <input type="number" class="labUnits" min="0" required>
+                        <label for="computerLabRequired">Require Computer Lab?</label>
+                        <select class="computerLabRequired">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select><br>
+                        <button type="button" class="deleteSubjectBtn">Delete Subject</button><br>
+                    </div>
+                </div>
+                <button type="button" class="addSubjectBtn">Add Subject</button><br>
+                <button type="button" class="deleteTeacherBtn">Delete Teacher</button><br>
+            `;
+            teacherInputsDiv.appendChild(teacherInput);
+        });
+
+    document.addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('addSubjectBtn')) {
+                const subjectInputsDiv = event.target.parentElement.querySelector('.subjectInputs');
+
+                const subjectInput = document.createElement('div');
+                subjectInput.classList.add('subjectInput');
+                subjectInput.innerHTML = `
+                    <label for="subject">Subject:</label>
+                    <input type="text" class="subject" required>
+                    <label for="section">Section:</label>
+                    <input type="text" class="section" required>
+                    <label for="lectureUnits">Lecture Units:</label>
+                    <input type="number" class="lectureUnits" min="0" required>
+                    <label for="labUnits">Lab Units:</label>
+                    <input type="number" class="labUnits" min="0" required>
+                    <label for="computerLabRequired">Require Computer Lab?</label>
+                    <select class="computerLabRequired">
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select><br>
+                    <button type="button" class="deleteSubjectBtn">Delete Subject</button><br>
+                `;
+                subjectInputsDiv.appendChild(subjectInput);
+            }
+            if (event.target && event.target.classList.contains('deleteTeacherBtn')) {
+                event.target.parentElement.remove();
+            }
+            if (event.target && event.target.classList.contains('deleteSubjectBtn')) {
+                event.target.parentElement.remove();
+            }
+        });
+
+    document.getElementById('classForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Extract room names
+            const lectureRoomNamesInput = document.getElementById('lectureRoomNames').value.trim();
+            lectureRooms = lectureRoomNamesInput.split(',').map(name => name.trim());
+            const labRoomNamesInput = document.getElementById('labRoomNames').value.trim();
+            labRooms = labRoomNamesInput.split(',').map(name => name.trim());
+            const computerLabNamesInput = document.getElementById('computerLabNames').value.trim();
+            computerLabRooms = computerLabNamesInput.split(',').map(name => name.trim());
+
+            // Clear previous schedule and pending classes
+            const scheduleDiv = document.getElementById('schedule');
+            scheduleDiv.innerHTML = '';
+            const pendingClassesDiv = document.getElementById('pendingClasses');
+            pendingClassesDiv.innerHTML = '';
+
+            classes = []; // Clear classes array
+
+            const teacherInputs = document.querySelectorAll('.teacherInput');
+
+            teacherInputs.forEach(teacherInput => {
+                const teacherName = teacherInput.querySelector('.teacherName').value;
+
+                const subjectInputs = teacherInput.querySelectorAll('.subjectInput');
+
+                subjectInputs.forEach(subjectInput => {
+                    const subject = subjectInput.querySelector('.subject').value;
+                    const section = subjectInput.querySelector('.section').value;
+                    const lectureUnits = parseInt(subjectInput.querySelector('.lectureUnits').value);
+                    const labUnits = parseInt(subjectInput.querySelector('.labUnits').value);
+                    const computerLabRequired = subjectInput.querySelector('.computerLabRequired').value;
+
+                    // Check for invalid lecture and lab units
+                    if (lectureUnits > 5 || labUnits > 5) {
+                        alert('Lecture and lab units cannot exceed 5.');
+                        return;
+                    }
+
+                    const day = days[Math.floor(Math.random() * days.length)];
+
+                    let room;
+                    let startTime;
+                    let endTime;
+                    let classType;
+
+                    // Handling classes with lab units
+                    if (labUnits > 0) {
+                        // Classes requiring computer lab
+                        if (computerLabRequired === 'yes') {
+                            // Schedule lecture session in any available room
+                            room = lectureRooms.length > 0 ? lectureRooms.shift() : "N/A";
+                            startTime = getRandomStartTime();
+                            endTime = calculateEndTime(startTime, 1.5);
+                            classType = 'Lecture';
+                            const newLectureClass = {
+                                teacherName,
+                                subject,
+                                section,
+                                lectureUnits,
+                                labUnits: 0,
+                                day,
+                                startTime,
+                                endTime,
+                                room,
+                                classType
+                            };
+                            classes.push(newLectureClass);
+
+                            // Schedule lab session in computer lab
+                            room = computerLabRooms.length > 0 ? computerLabRooms.shift() : "N/A";
+                            startTime = getRandomStartTime();
+                            endTime = calculateEndTime(startTime, 3);
+                            classType = 'Lab';
+                        } else { // Classes not requiring computer lab
+                            // Schedule lecture session in any available room
+                            room = lectureRooms.length > 0 ? lectureRooms.shift() : "N/A";
+                            startTime = getRandomStartTime();
+                            endTime = calculateEndTime(startTime, 1.5);
+                            classType = 'Lecture';
+
+                            // Add lecture session
+                            const newLectureClass = {
+                                teacherName,
+                                subject,
+                                section,
+                                lectureUnits,
+                                labUnits: 0,
+                                day,
+                                startTime,
+                                endTime,
+                                room,
+                                classType
+                            };
+                            classes.push(newLectureClass);
+
+                            // Schedule lab session in any available lab room
+                            room = labRooms.length > 0 ? labRooms.shift() : "N/A";
+                            startTime = getRandomStartTime();
+                            endTime = calculateEndTime(startTime, 3);
+                            classType = 'Lab';
+                        }
+                    } else { // Handling classes without lab units
+                        // Schedule lecture session in any available room
+                        room = lectureRooms.length > 0 ? lectureRooms.shift() : "N/A";
+                        startTime = getRandomStartTime();
+                        endTime = calculateEndTime(startTime, 1.5);
+                        classType = 'Lecture';
+                    }
+
+                    // Create new class object
+                    const newClass = {
+                        teacherName,
+                        subject,
+                        section,
+                        lectureUnits,
+                        labUnits,
+                        day,
+                        startTime,
+                        endTime,
+                        room,
+                        classType
+                    };
+
+                    classes.push(newClass);
+                });
+            });
+
+            sortClasses(); // Sort classes based on day and time
+            displaySchedule(); // Display the updated schedule
+            displayPendingClasses(); // Display pending classes
+        });
+</script>
+
 </body>
 </html>
