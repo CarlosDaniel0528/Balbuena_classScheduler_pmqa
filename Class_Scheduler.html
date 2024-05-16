@@ -252,6 +252,53 @@
             displaySchedule(); // Display the updated schedule
             displayPendingClasses(); // Display pending classes
         });
+    
+    function sortClasses() {
+            // Sort classes array by day and then start time
+            classes.sort((a, b) => {
+                if (a.day === b.day) {
+                    const aStartTime = parseTime(a.startTime);
+                    const bStartTime = parseTime(b.startTime);
+                    return aStartTime - bStartTime;
+                }
+                return days.indexOf(a.day) - days.indexOf(b.day);
+            });
+        }
+
+        function parseTime(timeString) {
+            const [hours, minutes] = timeString.split(':').map(str => parseInt(str));
+            return hours * 60 + minutes;
+        }
+
+        function displaySchedule() {
+            const scheduleDiv = document.getElementById('schedule');
+
+            // Group classes by teacher
+            const teachers = {};
+            classes.forEach(classItem => {
+                if (!teachers[classItem.teacherName]) {
+                    teachers[classItem.teacherName] = [];
+                }
+                teachers[classItem.teacherName].push(classItem);
+            });
+
+            // Display each teacher's schedule
+            for (const teacherName in teachers) {
+                if (teachers.hasOwnProperty(teacherName)) {
+                    const teacherClasses = teachers[teacherName];
+                    scheduleDiv.innerHTML += `<h3>${teacherName}'s Schedule</h3>`;
+                    teacherClasses.forEach(classItem => {
+                        const startTime = formatTime(classItem.startTime);
+                        const endTime = formatTime(classItem.endTime);
+                        const room = classItem.room ? classItem.room : "N/A";
+                        const classType = classItem.classType ? `(${classItem.classType})` : '';
+                        const duration = calculateDuration(classItem.startTime, classItem.endTime);
+                        const classEntry = `<p>${classItem.subject} - ${classItem.section} - ${classItem.day} ${startTime} - ${endTime} (${room}) ${classType} - Lecture Units: ${classItem.lectureUnits}, Lab Units: ${classItem.labUnits} - Duration: ${duration}</p>`;
+                        scheduleDiv.innerHTML += classEntry;
+                    });
+                }
+            }
+        }
 </script>
 
 </body>
